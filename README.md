@@ -6,7 +6,7 @@ Welcome to superU LLM analytics Hosting! This service allows you to obtain Langf
 
 To start using the superU's Free Langfuse API Hosting service, follow these steps:
 
-1. Visit [www.freelangfuse.com](https://www.freelangfuse.com).
+1. Visit [analytics.superu.ai](https://analytics.superu.ai).
 2. Sign up for a free account or log in if you already have one.
 3. Navigate to the API keys section.
 4. Generate your Langfuse API keys.
@@ -55,6 +55,7 @@ input_messages = [
 
 # Request chat completion from OpenAI
 openai_response = openai.chat.completions.create(
+    # change model as per requirments
     model="GPT-turbo-3.5",
     messages=input_messages,
 )

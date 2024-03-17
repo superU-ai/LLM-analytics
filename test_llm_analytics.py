@@ -1,8 +1,12 @@
 from superu_llm import SuperuAnalysisService
 
+# replace with the host of the service in case of local deployment
+# langfuse_host = "hhttp://localhost:3000"
+langfuse_host = "https://analytics.superu.ai" 
+
 service_client = SuperuAnalysisService(public_key="", 
                                         secret_key="",
-                                        host="")
+                                        host=langfuse_host)
 
 # Test Example for monitoring openai calls
 import openai
