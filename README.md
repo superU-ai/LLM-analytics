@@ -8,8 +8,9 @@ To start using the superU's Free Langfuse API Hosting service, follow these step
 
 1. Visit [analytics.superu.ai](https://analytics.superu.ai).
 2. Sign up for a free account or log in if you already have one.
-3. Navigate to the API keys section.
-4. Generate your Langfuse API keys.
+3. Create a new Project.
+4. Navigate to the Settings > API keys section.
+5. Generate your Langfuse API keys.
 
 ## Installation
 
