@@ -1,25 +1,24 @@
 # superU LLM analytics
 
-Welcome to superU LLM analytics Hosting! This service allows you to obtain Langfuse API keys for accessing the Langfuse API. Langfuse is an open-source project designed for natural language processing tasks.
-
+Welcome to superU LLM analytics Hosting! This service allows you to track metrics (cost, latency, quality) and gain insights about your users.
 ## Getting Started
 
-To start using the superU's Free Langfuse API Hosting service, follow these steps:
+To start using the superU's Free Analytics API service, follow these steps:
 
 1. Visit [analytics.superu.ai](https://analytics.superu.ai).
 2. Sign up for a free account or log in if you already have one.
 3. Create a new Project.
 4. Navigate to the Settings > API keys section.
-5. Generate your Langfuse API keys.
+5. Generate your superU API keys.
 
 ## Installation
 
-To integrate Langfuse API keys into your Python projects, follow these steps:
+To integrate superU's Analytics with your Python projects, follow these steps:
 
 1. Clone the GitHub repository:
 
 ```bash
-git clone https://github.com/GuptaAk07/superu-llm-analytics.git
+git clone https://github.com/superU-ai/LLM-analytics.git
 ```
 
 2. Navigate to the directory:
@@ -34,7 +33,7 @@ cd superu-llm-analytics
 pip install -r requirements.txt
 ```
 
-After obtaining your Langfuse API keys, you can integrate them into your projects to access the Langfuse API. Below is an example of how to use Langfuse API keys with the Superu Analysis Service, along with an OpenAI integration:
+After obtaining your superU API keys, you can integrate them into your projects to access the API. Below is an example of how to use the API keys with the Superu Analysis Service, along with an OpenAI integration:
 
 ## Iterate through this procedure for all your prompts and responses to thoroughly analyze user interactions with your LLM.
 
@@ -43,7 +42,9 @@ from superu_llm import SuperuAnalysisService
 import openai
 
 # Initialize the service client
-service_client = SuperuAnalysisService(public_key="your_public_key", secret_key="your_secret_key", host="langfuse_host")
+superU_host = "https://analytics.superu.ai" 
+
+service_client = SuperuAnalysisService(public_key="", secret_key="",host=superU_host)
 
 # Set up OpenAI API key
 openai.api_key = "your_openai_api_key"
