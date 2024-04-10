@@ -53,21 +53,21 @@ class llm_analytics:
 
         user_id = data.get("user_id", str(uuid.uuid4()))
         name = data.get("name", "chat_session")
-        data = {
+        formated_data = {
             "batch":[
             {
                 "id": str(uuid.uuid4()),
                 "type":"trace-create",
                 "body":{
                     "id":trace_id,
-                    "timestamp": datetime.datetime.now(),
+                    "timestamp": data.get('timestamp' , datetime.datetime.now()),
                     "name": name,
                     "input": input_messages,
                     "output": output,
                     "metadata": metadata,
                     "userId": user_id,
                 },
-                "timestamp":datetime.datetime.now()
+                "timestamp":data.get('timestamp' , datetime.datetime.now())
             },
             {
                 "id":str(uuid.uuid4()),
@@ -75,7 +75,7 @@ class llm_analytics:
                 "body":{
                     "traceId":trace_id,
                     "name":name,
-                    "startTime": datetime.datetime.now(),
+                    "startTime": data.get('timestamp' , datetime.datetime.now()),
                     "input":input_messages,
                     "id":generation_id,
                     "model":model,
@@ -87,7 +87,7 @@ class llm_analytics:
                         "presence_penalty":0
                     }
                 },
-                "timestamp": datetime.datetime.now()
+                "timestamp": data.get('timestamp' , datetime.datetime.now())
             },
             {
                 
@@ -96,11 +96,11 @@ class llm_analytics:
                 "body":{
                     "output": output_messages,
                     "id": generation_id,
-                    "endTime": datetime.datetime.now(),
+                    "endTime": data.get('timestamp' , datetime.datetime.now()),
                     "model": model,
                     "usage": model_usage
                 },
-                "timestamp":datetime.datetime.now()
+                "timestamp":data.get('timestamp' , datetime.datetime.now())
             }
             ],
             "metadata":{
@@ -112,4 +112,4 @@ class llm_analytics:
             }
         }
 
-        return data
+        return formated_data
