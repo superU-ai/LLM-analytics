@@ -1,18 +1,17 @@
-from langfuse.client import LangfuseClient
 import httpx
 import uuid
 import datetime
+from superuClient import SuperUClient
+class llm_analytics:
 
-class SuperuAnalysisService:
-
-    def __init__(self, public_key: str, secret_key: str, host: str, version: str = "latest", timeout: int = 10):
+    def __init__(self, public_key: str, secret_key: str , version: str = "latest", timeout: int = 10):
         self.public_key = public_key
         self.secret_key = secret_key
-        self.host = host
+        self.host = "https://analytics.superu.ai"
         self.version = version
         self.timeout = timeout
         self.session = httpx.Client(timeout=10)
-        self.langfuse_client = LangfuseClient(
+        self.langfuse_client = SuperUClient(
                                 public_key=self.public_key,
                                 secret_key=self.secret_key,
                                 base_url=self.host,
@@ -20,38 +19,40 @@ class SuperuAnalysisService:
                                 timeout=self.timeout,
                                 session=self.session
                     )
-        self.model_type_map = { "openai": self.format_openai_data,
-                                "llama_index": self.format_llama_index_data}
 
-    
     def post_data(self, data):
 
-        data = self.model_type_map[data["type"]](data)
+        data = self.format_data(data)
         response = self.langfuse_client.post(**data)
         if response.status_code == 200:
             return response
-        return response
+        return {"user_id": data["batch"][0]["body"]["userId"]}
 
-    def format_openai_data(self, data):
+    def format_data(self, data):
 
-        # trace_id = 
         trace_id = str(uuid.uuid4())
         generation_id = str(uuid.uuid4())
 
-        output_data = data.get("output_data")
-        output_message = {
-            "content" : output_data.choices[0].message.content,
-            "role": output_data.choices[0].message.role
+        output_messages = data.get("output_messages")
+        output = {
+            "role": "assistant",
+            "content": output_messages
         }
-        model_usage_data = output_data.usage
-        model_usage = {
-            "input": model_usage_data.prompt_tokens,
-            "output": model_usage_data.completion_tokens,
-            "total": model_usage_data.total_tokens
-        }
-        input_messages = data.get("input_data")
-        model_name = output_data.model
-        
+        input_messages = data.get("input_messages")
+        metadata = data.get("metadata")
+        model = data.get("model")
+
+        model_usage_data = data.get("model_usage")
+        model_usage = None
+        if model_usage_data:
+            model_usage = {
+                "input": model_usage_data.get("prompt_tokens", 0),
+                "output": model_usage_data.get("completion_tokens", 0),
+                "total": model_usage_data.get("total_tokens", 0)
+            }
+
+        user_id = data.get("user_id", str(uuid.uuid4()))
+        name = data.get("name", "chat_session")
         data = {
             "batch":[
             {
@@ -59,11 +60,12 @@ class SuperuAnalysisService:
                 "type":"trace-create",
                 "body":{
                     "id":trace_id,
-                    "timestamp":datetime.datetime.now(),
-                    "name":f"openai_trace",
-                    "input": input_messages[1],
-                    "output": output_message["content"],
-                    "metadata": data.get("metadata", None)
+                    "timestamp": datetime.datetime.now(),
+                    "name": name,
+                    "input": input_messages,
+                    "output": output,
+                    "metadata": metadata,
+                    "userId": user_id,
                 },
                 "timestamp":datetime.datetime.now()
             },
@@ -72,11 +74,11 @@ class SuperuAnalysisService:
                 "type":"generation-create",
                 "body":{
                     "traceId":trace_id,
-                    "name":f"openai_converation",
-                    "startTime":datetime.datetime.now(),
+                    "name":name,
+                    "startTime": datetime.datetime.now(),
                     "input":input_messages,
                     "id":generation_id,
-                    "model":model_name,
+                    "model":model,
                     "modelParameters":{
                         "temperature":1,
                         "max_tokens":"inf",
@@ -85,17 +87,17 @@ class SuperuAnalysisService:
                         "presence_penalty":0
                     }
                 },
-                "timestamp":datetime.datetime.now()
+                "timestamp": datetime.datetime.now()
             },
             {
                 
                 "id":str(uuid.uuid4()),
                 "type":"generation-update",
                 "body":{
-                    "output": output_message,
+                    "output": output_messages,
                     "id": generation_id,
                     "endTime": datetime.datetime.now(),
-                    "model": model_name,
+                    "model": model,
                     "usage": model_usage
                 },
                 "timestamp":datetime.datetime.now()
@@ -111,6 +113,3 @@ class SuperuAnalysisService:
         }
 
         return data
-    
-    def format_llama_index_data(data):
-        pass

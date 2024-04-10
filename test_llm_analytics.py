@@ -1,34 +1,36 @@
-from superu_llm import SuperuAnalysisService
+from superu_llm import llm_analytics
 
-# replace with the host of the service in case of local deployment
-# langfuse_host = "hhttp://localhost:3000"
-langfuse_host = "https://analytics.superu.ai" 
 
-service_client = SuperuAnalysisService(public_key="", 
-                                        secret_key="",
-                                        host=langfuse_host)
+# your superu analytics credentials
+llm_analytics_client = llm_analytics(public_key="pk-lf-.....", 
+                                        secret_key="sk-lf-....")
 
 # Test Example for monitoring openai calls
 import openai
-openai.api_key = ""
+
+# your openai credentials
+openai.api_key = "xyz"     
 
 # try:
 messages = [
       {"role": "system", "content": "You are a very accurate calculator. You output only the result of the calculation."},
-      {"role": "user", "content": "1 + 1 = "}]
+      {"role": "user", "content": "1 + 2 = "}]
 
 openai_response = openai.chat.completions.create(
-model="GPT-turbo-3.5",
+model="gpt-3.5-turbo",
 messages=messages,
 )
 
 # data to be sent in the following format
 data = {
-    "input_data": messages,
-    "output_data": openai_response,
-    "type": "openai",  # openai or llama_index,
-    "metadata": {"user": "test-user", "context": "openai testing"} # optional
+    "input_messages": messages,                                         # Required - Input Messages 
+    "output_messages": openai_response.choices[0].message.content,      # Required - the output from the model
+    "metadata": {"user": "test-user", "context": "openai testing"},     # Optional - to give some metadata to the conversation
+    "model": openai_response.model,                                     # Required - Name of the model
+    "user_id": "",                                                      # Optional - if not given a user_id , a unique user_id will be generated
+    "usage": openai_response.usage.model_dump(),                        # Optional - usage details to track the model usage and costs
+    "name": ""                                                          # Optional - to name the given conversation 
 }
 
-res = service_client.post_data(data) # capturing openai call
-print(res.content)
+# finally sending the data to superu analytics
+llm_analytics_client.post_data(data)
